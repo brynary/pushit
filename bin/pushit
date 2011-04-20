@@ -1,0 +1,10 @@
+#!/usr/bin/env ruby
+
+lib_path = File.expand_path(File.dirname(__FILE__) + '/../lib')
+$LOAD_PATH.unshift(lib_path) unless $LOAD_PATH.include?(lib_path)
+
+require "net/http"
+
+uri = URI.parse('http://localhost:4567/deploy')
+res = Net::HTTP.post_form(uri, {})
+puts res.body
