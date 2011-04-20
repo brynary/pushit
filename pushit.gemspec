@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
 
   s.add_dependency "sinatra", "~> 1.2.3"
+  s.add_dependency "choice", "~> 0.1.4"
 
   s.require_paths = ["lib"]
 end
