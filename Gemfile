@@ -1,4 +1,4 @@
 source "http://rubygems.org"
 
-# Specify your gem's dependencies in push_it.gemspec
+# Specify your gem's dependencies in pushit.gemspec
 gemspec
