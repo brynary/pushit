@@ -16,7 +16,7 @@ module PushIt
     end
 
     def command
-      "cap staging deploy"
+      PushIt.configuration.command
     end
 
   end

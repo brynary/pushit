@@ -17,6 +17,7 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
 
   s.add_development_dependency "rspec", "~> 2.5.0"
+  s.add_development_dependency "rack-test", "~> 0.5.7"
   s.add_dependency "sinatra", "~> 1.2.3"
   s.add_dependency "choice", "~> 0.1.4"
   s.add_dependency "posix-spawn", "~> 0.3.6"
