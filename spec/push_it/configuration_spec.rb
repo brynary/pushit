@@ -1,4 +1,4 @@
-require 'push_it/configuration'
+require 'push_it'
 
 module PushIt
 
