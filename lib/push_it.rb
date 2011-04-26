@@ -1,3 +1,2 @@
 module PushIt
-  # Your code goes here...
 end
