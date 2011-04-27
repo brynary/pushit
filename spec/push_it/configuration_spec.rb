@@ -17,6 +17,13 @@ module PushIt
         end
       }.to raise_error
     end
+
+    it "can be configured with a new configuration object" do
+      config = PushIt::Configuration.new
+      config.command = "/usr/bin/true"
+      PushIt.configure(config)
+      PushIt.configuration.command.should == "/usr/bin/true"
+    end
   end
 
 end

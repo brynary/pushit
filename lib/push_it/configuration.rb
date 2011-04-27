@@ -3,9 +3,9 @@ module PushIt
     @@configuration ||= Configuration.new
   end
 
-  def self.configure
-    yield configuration
-    configuration
+  def self.configure(configuration = PushIt.configuration)
+    yield configuration if block_given?
+    @@configuration = configuration
   end
 
   class Configuration
