@@ -1,0 +1,6 @@
+* use default command for deploys, so that first time boots don't fail
+* stream std out/std err (to sinatra process to start)
+* persistence - for standard out/in/reporting
+
+* client should accept server url as parameter
+* client should have a config concept
