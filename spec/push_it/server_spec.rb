@@ -1,4 +1,4 @@
-require 'push_it'
+require 'spec_helper'
 require 'rack/test'
 
 module PushIt
