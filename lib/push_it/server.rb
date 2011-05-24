@@ -6,6 +6,7 @@ module PushIt
   class Server < Sinatra::Base
 
     post "/deploy" do
+      content_type 'text/plain', :charset => 'utf-8'
       Thread.new { deploy! }
       deploy_guid
     end

@@ -19,6 +19,11 @@ module PushIt
         post "/deploy"
         last_response.body.should == "1234acbc"
       end
+
+      it "returns a text/plain response" do
+        post "/deploy"
+        last_response.headers["Content-Type"].should == "text/plain;charset=utf-8"
+      end
     end
 
     it "runs the configured command" do
