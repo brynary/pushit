@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "rspec", "~> 2.5.0"
   s.add_development_dependency "rack-test", "~> 0.5.7"
+  s.add_development_dependency "ruby-debug", "~> 0.10.4"
   s.add_dependency "sinatra", "~> 1.2.3"
   s.add_dependency "choice", "~> 0.1.4"
   s.add_dependency "posix-spawn", "~> 0.3.6"
