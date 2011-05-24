@@ -1,12 +1,13 @@
 require "sinatra/base"
 require "posix/spawn"
+require 'uuidtools'
 
 module PushIt
   class Server < Sinatra::Base
 
     post "/deploy" do
       Thread.new { deploy! }
-      "started"
+      deploy_guid
     end
 
     def deploy!
@@ -19,5 +20,10 @@ module PushIt
       PushIt.configuration.command
     end
 
+  protected
+
+    def deploy_guid
+      UUIDTools::UUID.random_create.to_s.gsub("-","")
+    end
   end
 end
