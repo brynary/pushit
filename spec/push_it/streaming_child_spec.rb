@@ -53,13 +53,6 @@ module PushIt
       assert_equal File.dirname(Dir.pwd) + "\n", p.out
     end
 
-    it "test_input" do
-      input = "HEY NOW\n" * 100_000 # 800K
-      p = StreamingChild.new('wc', '-l', :input => input)
-      p.exec!
-      assert_equal 100_000, p.out.strip.to_i
-    end
-
     it "test_max" do
       assert_raise POSIX::Spawn::MaximumOutputExceeded do
         StreamingChild.new('yes', :max => 100_000).exec!
@@ -88,36 +81,6 @@ module PushIt
       assert_raise POSIX::Spawn::TimeoutExceeded do
         StreamingChild.new('/bin/sh', '-c', 'sleep 1', :timeout => 0.05).exec!
       end
-    end
-
-    it "test_lots_of_input_and_lots_of_output_at_the_same_time" do
-      input = "stuff on stdin \n" * 1_000
-      command = "
-        while read line
-        do
-          echo stuff on stdout;
-          echo stuff on stderr 1>&2;
-        done
-      "
-      p = StreamingChild.new(command, :input => input)
-      p.exec!
-      assert_equal input.size, p.out.size
-      assert_equal input.size, p.err.size
-      assert p.success?
-    end
-
-    it "test_input_cannot_be_written_due_to_broken_pipe" do
-      input = "1" * 100_000
-      p = StreamingChild.new('false', :input => input)
-      p.exec!
-      assert !p.success?
-    end
-
-    it "test_utf8_input" do
-      input = "hålø"
-      p = StreamingChild.new('cat', :input => input)
-      p.exec!
-      assert p.success?
     end
 
   end
