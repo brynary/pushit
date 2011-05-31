@@ -18,6 +18,7 @@ module PushIt
 
         # async read from all streams into buffers
         @out, @err = read_and_write(stdin, stdout, stderr, @timeout, @max)
+        yield @out, @err
 
         # grab exit status
         @status = waitpid(pid)
