@@ -2,3 +2,5 @@
 .bundle
 Gemfile.lock
 pkg/*
+application.rb
+configuration.rb
