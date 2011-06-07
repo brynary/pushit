@@ -12,14 +12,12 @@ module PushIt
       @options.delete(:chdir) if @options[:chdir].nil?
     end
 
-    def exec!
+    def exec!(&block)
         # spawn the process and hook up the pipes
         pid, stdin, stdout, stderr = popen4(@env, *(@argv + [@options]))
 
-        # async read from all streams into buffers
-        @out, @err = read_and_write(stdin, stdout, stderr, @timeout, @max)
-        yield :stdout, @out
-        yield :stderr, @err
+        # async read from all streams
+        read_and_write(stdin, stdout, stderr, @timeout, @max, &block)
 
         # grab exit status
         @status = waitpid(pid)
@@ -35,24 +33,21 @@ module PushIt
         [stdin, stdout, stderr].each { |fd| fd.close rescue nil }
     end
 
-    def read_and_write(stdin, stdout, stderr, timeout=nil, max=nil)
+    def read_and_write(stdin, stdout, stderr, timeout=nil, max=nil, &block)
       max = nil if max && max <= 0
-      out, err = '', ''
-      offset = 0
 
       # force all string and IO encodings to BINARY under 1.9 for now
-      if out.respond_to?(:force_encoding)
+      if "".respond_to?(:force_encoding)
         [stdin, stdout, stderr].each do |fd|
           fd.set_encoding('BINARY', 'BINARY')
         end
-        out.force_encoding('BINARY')
-        err.force_encoding('BINARY')
       end
 
       timeout = nil if timeout && timeout <= 0.0
       @runtime = 0.0
       start = Time.now
       stdin.close
+      total_stream_size = 0
 
       readers = [stdout, stderr]
 
@@ -63,9 +58,11 @@ module PushIt
 
         # read from stdout and stderr streams
         ready[0].each do |fd|
-          buf = (fd == stdout) ? out : err
+          stream = (fd == stdout) ? :stdout : :stderr
           begin
-            buf << fd.readpartial(BUFSIZE)
+            out = fd.readpartial(BUFSIZE)
+            total_stream_size += out.size
+            block.call(stream, out)
           rescue Errno::EAGAIN, Errno::EINTR
           rescue EOFError
             readers.delete(fd)
@@ -81,12 +78,10 @@ module PushIt
         end
 
         # maybe we've hit our max output
-        if max && ready[0].any? && (out.size + err.size) > max
+        if max && ready[0].any? && total_stream_size > max
           raise MaximumOutputExceeded
         end
       end
-
-      [out, err]
     end
 
   end
