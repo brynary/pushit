@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
   s.add_dependency "sinatra", "~> 1.2.3"
   s.add_dependency "choice", "~> 0.1.4"
   s.add_dependency "posix-spawn", "~> 0.3.6"
-  s.add_dependency "uuidtools", "~> 2.1.2"
 
   s.require_paths = ["lib"]
 end
