@@ -12,8 +12,10 @@ module PushIt
     end
 
     def deploy!
-      child = POSIX::Spawn::Child.new(*command.split)
-      puts child.out
+      child = StreamingChild.new(*command.split)
+      child.exec! do |stream, data|
+        puts "#{stream}: #{data}"
+      end
       raise child.err unless child.status.success?
     end
 
