@@ -9,6 +9,7 @@ module PushIt
     let(:app) { Server }
 
     before(:all) do
+      Thread.stub(:new).and_yield
       PushIt.configure do |config|
         config.command = "/bin/echo 'hi'"
       end
@@ -22,8 +23,8 @@ module PushIt
     end
 
     it "runs the configured command" do
-      mock_result = mock(:out => "", :err => "", :status => mock(:success? => true))
-      POSIX::Spawn::Child.should_receive(:new).with("/bin/echo", "'hi'").and_return(mock_result)
+      mock_result = mock(:exec! => nil, :status => mock(:success? => true))
+      StreamingChild.should_receive(:new).with("/bin/echo", "'hi'").and_return(mock_result)
       post "/deploy"
     end
   end
