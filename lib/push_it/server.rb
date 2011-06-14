@@ -14,7 +14,6 @@ module PushIt
       child.exec! do |stream, data|
         puts "#{stream}: #{data}"
       end
-      raise child.err unless child.status.success?
     end
 
     def command
