@@ -8,24 +8,25 @@ module PushIt
     include Rack::Test::Methods
     let(:app) { Server }
 
-    before(:all) do
-      Thread.stub(:new).and_yield
-      PushIt.configure do |config|
-        config.command = "/bin/echo 'hi'"
-      end
-    end
-
     describe "deploy" do
+
+      before do
+        Thread.stub(:new).and_yield
+        PushIt.configure do |config|
+          config.command = "/usr/bin/true"
+        end
+      end
+
       it "returns a text/plain response" do
         post "/deploy"
         last_response.headers["Content-Type"].should == "text/plain;charset=utf-8"
       end
-    end
 
-    it "runs the configured command" do
-      mock_result = mock(:exec! => nil, :status => mock(:success? => true))
-      StreamingChild.should_receive(:new).with("/bin/echo", "'hi'").and_return(mock_result)
-      post "/deploy"
+      it "runs the configured command" do
+        mock_result = mock(:exec! => nil)
+        StreamingChild.should_receive(:new).with("/usr/bin/true").and_return(mock_result)
+        post "/deploy"
+      end
     end
   end
 
