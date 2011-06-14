@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'rack/test'
+ENV['RACK_ENV'] = 'test'
 
 module PushIt
 
