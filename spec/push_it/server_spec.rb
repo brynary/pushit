@@ -8,7 +8,7 @@ module PushIt
     include Rack::Test::Methods
     let(:app) { Server }
 
-    describe "deploy" do
+    describe "post /deploy" do
 
       before do
         Thread.stub(:new).and_yield
@@ -26,6 +26,22 @@ module PushIt
         mock_result = mock(:exec! => nil)
         StreamingChild.should_receive(:new).with("/usr/bin/true").and_return(mock_result)
         post "/deploy"
+      end
+
+    end
+
+    describe "get /deploy" do
+      before do
+        Thread.stub(:new).and_yield
+        PushIt.configure do |config|
+          config.command = "/bin/echo hi"
+        end
+      end
+
+      it "returns standard out" do
+        post "/deploy"
+        get "/deploy"
+        last_response.body.should == "hi\n"
       end
     end
   end
