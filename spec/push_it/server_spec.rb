@@ -31,19 +31,18 @@ module PushIt
     end
 
     describe "get /deploy" do
-      before do
+      it "returns standard out" do
         Thread.stub(:new).and_yield
         PushIt.configure do |config|
           config.command = "/bin/echo hi"
         end
-      end
-
-      it "returns standard out" do
         post "/deploy"
         get "/deploy"
-        last_response.body.should == "hi\n"
+        last_response.body.should =~ /^INFO: .*, hi$/
       end
     end
+
+
   end
 
 end
