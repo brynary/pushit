@@ -7,10 +7,16 @@ module PushIt
 
     post "/deploy" do
       content_type 'text/plain', :charset => 'utf-8'
-      Thread.new { deploy! }
+      if DeployLock.instance.acquire
+        Thread.new { deploy! }
+        "Beginning Deploy"
+      else
+        "Deploy In Progress"
+      end
     end
 
     get "/deploy" do
+      content_type 'text/plain', :charset => 'utf-8'
       self.class.deploy_output
     end
 
@@ -24,6 +30,8 @@ module PushIt
           self.class.logger.error(data)
         end
       end
+    ensure
+      DeployLock.instance.release
     end
 
     def command
@@ -42,7 +50,7 @@ module PushIt
     end
 
     def self.deploy_output
-      @deploy_output.string
+      @deploy_output ? @deploy_output.string : "No Deploy Log"
     end
 
   end
