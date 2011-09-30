@@ -5,5 +5,5 @@ module PushIt
   autoload :Server, "push_it/server"
   autoload :Configuration, "push_it/configuration"
   autoload :CLI, "push_it/cli"
-  autoload :DeployLock, "push_it/deploy_lock"
+  autoload :DeployLog, "push_it/deploy_log"
 end

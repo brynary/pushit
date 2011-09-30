@@ -1,27 +1,31 @@
 require "sinatra/base"
 require "posix/spawn"
 require "logger"
+require "thread"
 
 module PushIt
   class Server < Sinatra::Base
 
     post "/deploy" do
       content_type 'text/plain', :charset => 'utf-8'
-      if DeployLock.instance.acquire
-        Thread.new { deploy! }
-        "Beginning Deploy"
-      else
-        "Deploy In Progress"
-      end
+      thread = Thread.new {
+        Thread.current['acquired_lock'] = self.class.deploy_lock.try_lock
+        Thread.stop
+        deploy! if Thread.current['acquired_lock']
+      }
+      response = thread['acquired_lock'] ? "Deploying" : "Already Deploying"
+      thread.run
+      thread.join if ENV['RACK_ENV'] == "test"
+      response
     end
 
-    get "/deploy" do
-      content_type 'text/plain', :charset => 'utf-8'
-      self.class.deploy_output
+    def self.deploy_lock
+      @mutex ||= Mutex.new
     end
 
     def deploy!
-      self.class.reset_log
+      self.class.logger.info("Deploy started at #{Time.now}")
+      self.class.logger.info("Running: #{command}")
       child = StreamingChild.new(*command.split)
       child.exec! do |stream, data|
         if stream == :stdout
@@ -30,8 +34,15 @@ module PushIt
           self.class.logger.error(data)
         end
       end
+    rescue StandardError => e
+      self.class.logger.error("An error occurred attempting to run the deploy command: #{e.message}")
     ensure
-      DeployLock.instance.release
+      self.class.logger.info("Deploy ended at #{Time.now}")
+    end
+
+    get "/deploy" do
+      content_type 'text/plain', :charset => 'utf-8'
+      self.class.logger.output
     end
 
     def command
@@ -39,18 +50,7 @@ module PushIt
     end
 
     def self.logger
-      return @logger if @logger
-      @logger = Logger.new(@deploy_output)
-      @logger.formatter = proc { |severity, datetime, progname, msg| "#{severity}: #{datetime}, #{msg}" }
-      @logger
-    end
-
-    def self.reset_log
-      @deploy_output = StringIO.new
-    end
-
-    def self.deploy_output
-      @deploy_output ? @deploy_output.string : "No Deploy Log"
+      @logger ||= DeployLog.new
     end
 
   end
