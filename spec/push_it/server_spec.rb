@@ -55,6 +55,14 @@ module PushIt
         get "/deploy"
         last_response.headers["Content-Type"].should == "text/plain;charset=utf-8"
       end
+
+      it "prints out errors if the command could not be found" do
+        PushIt.configuration.stub(:command => "_does_not_exist_")
+        post "/deploy"
+        get "/deploy"
+        last_response.body.split("\n")[-2].should =~ /E, An error occurred (.*) No such file or directory/
+      end
+
     end
 
   end
