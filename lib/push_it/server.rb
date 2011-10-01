@@ -6,6 +6,8 @@ require "thread"
 module PushIt
   class Server < Sinatra::Base
 
+    set :synchronous_deploy, false
+
     post "/deploy" do
       content_type 'text/plain', :charset => 'utf-8'
       thread = Thread.new {
@@ -13,10 +15,10 @@ module PushIt
         Thread.stop
         deploy! if Thread.current['acquired_lock']
       }
-      response = thread['acquired_lock'] ? "Deploying" : "Already Deploying"
+      status = thread['acquired_lock'] ? 200 : 409
       thread.run
-      thread.join if ENV['RACK_ENV'] == "test"
-      response
+      thread.join if settings.synchronous_deploy
+      status
     end
 
     def self.deploy_lock
