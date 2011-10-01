@@ -13,7 +13,7 @@ module PushIt
       thread = Thread.new {
         Thread.current['acquired_lock'] = self.class.deploy_lock.try_lock
         Thread.stop
-        deploy! if Thread.current['acquired_lock']
+        Deploy.new(command, self.class.logger).run if Thread.current['acquired_lock']
       }
       status = thread['acquired_lock'] ? 200 : 409
       thread.run
@@ -23,23 +23,6 @@ module PushIt
 
     def self.deploy_lock
       @mutex ||= Mutex.new
-    end
-
-    def deploy!
-      self.class.logger.info("Deploy started at #{Time.now}")
-      self.class.logger.info("Running: #{command}")
-      child = StreamingChild.new(*command.split)
-      child.exec! do |stream, data|
-        if stream == :stdout
-          self.class.logger.info(data)
-        else
-          self.class.logger.error(data)
-        end
-      end
-    rescue StandardError => e
-      self.class.logger.error("An error occurred attempting to run the deploy command: #{e.message}")
-    ensure
-      self.class.logger.info("Deploy ended at #{Time.now}")
     end
 
     get "/deploy" do
