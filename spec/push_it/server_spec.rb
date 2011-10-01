@@ -11,7 +11,7 @@ module PushIt
     describe "post /deploy" do
       before do
         PushIt::Server.stub(:synchronous_deploy => true)
-        PushIt.configuration.stub(:command => "/usr/bin/true")
+        PushIt.configuration.stub(:command => "true")
       end
 
       it "returns a text/plain response" do
@@ -21,10 +21,10 @@ module PushIt
 
       it "responds with a 409 if a deploy is currently running" do
         PushIt::Server.stub(:synchronous_deploy => false)
-        PushIt.configuration.stub(:command => "/bin/sleep 1")
+        PushIt.configuration.stub(:command => "sleep 1")
         post "/deploy"
         last_response.status.should == 200
-        PushIt.configuration.stub(:command => "/usr/bin/true")
+        PushIt.configuration.stub(:command => "true")
         post "/deploy"
         last_response.status.should == 409
 
@@ -41,7 +41,7 @@ module PushIt
     describe "get /deploy" do
       before do
         PushIt::Server.stub(:synchronous_deploy => true)
-        PushIt.configuration.stub(:command => "/bin/echo hi")
+        PushIt.configuration.stub(:command => "echo hi")
       end
 
       it "returns standard out" do
