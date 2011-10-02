@@ -1,26 +1,26 @@
 module PushIt
   class Deploy
 
-    def initialize(command, logger)
+    def initialize(command, log)
       @command = command
-      @logger  = logger
+      @log     = log
     end
 
     def run
-      @logger.info("Deploy started at #{Time.now}")
-      @logger.info("Running: #{@command}")
+      @log.info("Deploy started at #{Time.now}")
+      @log.info("Running: #{@command}")
       child = StreamingChild.new(*@command.split)
       child.exec! do |stream, data|
         if stream == :stdout
-          @logger.info(data)
+          @log.info(data)
         else
-          @logger.error(data)
+          @log.error(data)
         end
       end
     rescue StandardError => e
-      @logger.error("An error occurred attempting to run the deploy command: #{e.message}")
+      @log.error("An error occurred attempting to run the deploy command: #{e.message}")
     ensure
-      @logger.info("Deploy ended at #{Time.now}")
+      @log.info("Deploy ended at #{Time.now}")
     end
 
   end

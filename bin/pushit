@@ -5,6 +5,29 @@ $LOAD_PATH.unshift(lib_path) unless $LOAD_PATH.include?(lib_path)
 
 require "net/http"
 
-uri = URI.parse('http://localhost:4567/deploy')
-res = Net::HTTP.post_form(uri, {})
-puts res.body
+if ARGV.empty?
+  STDERR.puts "Usage: pushit (deploy|log)"
+  exit(1)
+end
+
+if ARGV[0] == "deploy"
+
+  uri = URI.parse('http://localhost:4567/deploy')
+  res = Net::HTTP.post_form(uri, {})
+
+  if res.code == "200"
+    puts "Deploy Started"
+  elsif res.code == "409"
+    puts "Cannot Deploy: Deploy already running"
+  else
+    puts "Unknown Problem Occurred, status #{res.code}: \n#{res.body}"
+  end
+
+elsif ARGV[0] == "log"
+
+  uri = URI.parse('http://localhost:4567/deploy')
+  res = Net::HTTP.get(uri)
+  puts res
+
+end
+

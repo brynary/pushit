@@ -1,3 +1,5 @@
+require "thread"
+
 module PushIt
 
   class ExclusiveThread
