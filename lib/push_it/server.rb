@@ -10,19 +10,9 @@ module PushIt
 
     post "/deploy" do
       content_type 'text/plain', :charset => 'utf-8'
-      thread = Thread.new {
-        Thread.current['acquired_lock'] = self.class.deploy_lock.try_lock
-        Thread.stop
-        Deploy.new(command, self.class.logger).run if Thread.current['acquired_lock']
-      }
-      status = thread['acquired_lock'] ? 200 : 409
-      thread.run
-      thread.join if settings.synchronous_deploy
-      status
-    end
-
-    def self.deploy_lock
-      @mutex ||= Mutex.new
+      thread = ExclusiveThread.new(settings.synchronous_deploy)
+      acquired_lock = thread.start { Deploy.new(command, self.class.logger).run }
+      acquired_lock ? 200 : 409
     end
 
     get "/deploy" do
